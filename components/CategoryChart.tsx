@@ -19,16 +19,9 @@ export function CategoryChart({ transactions }: CategoryChartProps) {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div 
-          className="border rounded-lg p-3 shadow-md"
-          style={{
-            backgroundColor: chartTheme.tooltip.backgroundColor,
-            borderColor: chartTheme.tooltip.border,
-            color: chartTheme.tooltip.color,
-          }}
-        >
+        <div className="bg-card border border-border rounded-lg p-3 shadow-md text-card-foreground">
           <p className="font-medium">{data.category}</p>
-          <p style={{ color: chartTheme.colors.primary }}>
+          <p className="text-primary">
             Amount: {formatCurrency(data.amount)}
           </p>
         </div>
@@ -46,7 +39,7 @@ export function CategoryChart({ transactions }: CategoryChartProps) {
               className="w-3 h-3 rounded-full" 
               style={{ backgroundColor: entry.color }}
             />
-            <span style={{ color: chartTheme.colors.muted }}>{entry.value}</span>
+            <span className="text-muted-foreground">{entry.value}</span>
           </div>
         ))}
       </div>
@@ -55,7 +48,7 @@ export function CategoryChart({ transactions }: CategoryChartProps) {
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <Card className="w-full">
+      <Card className="w-full bg-card border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-center md:text-left">
             <PieChartIcon className="h-5 w-5" />

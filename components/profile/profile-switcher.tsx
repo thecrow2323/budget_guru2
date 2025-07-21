@@ -23,6 +23,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useProfileStore } from '@/store/profile-store';
 import { Profile, UserGroup } from '@/types/profile';
+import { CreateProfileDialog } from './create-profile-dialog';
 
 interface ProfileSwitcherProps {
   className?: string;
@@ -79,6 +80,10 @@ export function ProfileSwitcher({ className }: ProfileSwitcherProps) {
     return <User className="h-4 w-4" />;
   };
 
+  // Show create dialog if no groups exist
+  if (groups.length === 0) {
+    return <CreateProfileDialog />;
+  }
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -168,8 +173,9 @@ export function ProfileSwitcher({ className }: ProfileSwitcherProps) {
             <CommandSeparator />
             <CommandGroup>
               <CommandItem>
-                <Plus className="mr-2 h-4 w-4" />
-                <span>Create Profile</span>
+                <div className="w-full">
+                  <CreateProfileDialog />
+                </div>
               </CommandItem>
             </CommandGroup>
           </CommandList>

@@ -25,19 +25,12 @@ export function BudgetChart({ budgets }: BudgetChartProps) {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div 
-          className="border rounded-lg p-3 shadow-md"
-          style={{
-            backgroundColor: chartTheme.tooltip.backgroundColor,
-            borderColor: chartTheme.tooltip.border,
-            color: chartTheme.tooltip.color,
-          }}
-        >
+        <div className="bg-card border border-border rounded-lg p-3 shadow-md text-card-foreground">
           <p className="font-medium mb-2">{data.fullCategory}</p>
           <div className="space-y-1 text-sm">
-            <p style={{ color: chartTheme.colors.primary }}>Budget: {formatCurrency(data.budget)}</p>
-            <p style={{ color: chartTheme.colors.error }}>Spent: {formatCurrency(data.spent)}</p>
-            <p style={{ color: chartTheme.colors.success }}>Remaining: {formatCurrency(data.remaining)}</p>
+            <p className="text-primary">Budget: {formatCurrency(data.budget)}</p>
+            <p className="text-destructive">Spent: {formatCurrency(data.spent)}</p>
+            <p className="text-green-600">Remaining: {formatCurrency(data.remaining)}</p>
           </div>
         </div>
       );
@@ -47,7 +40,7 @@ export function BudgetChart({ budgets }: BudgetChartProps) {
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <Card className="w-full">
+      <Card className="w-full bg-card border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-center md:text-left">
             <BarChart3 className="h-5 w-5" />
@@ -67,7 +60,7 @@ export function BudgetChart({ budgets }: BudgetChartProps) {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid 
-                    stroke={chartTheme.grid.stroke}
+                    stroke="hsl(var(--border))"
                     strokeDasharray={chartTheme.grid.strokeDasharray}
                   />
                   <XAxis 
@@ -77,25 +70,25 @@ export function BudgetChart({ budgets }: BudgetChartProps) {
                     angle={-45}
                     textAnchor="end"
                     height={80}
-                    stroke={chartTheme.colors.muted}
+                    stroke="hsl(var(--muted-foreground))"
                   />
                   <YAxis 
                     className="text-sm"
                     tick={{ fontSize: 12 }}
                     tickFormatter={(value) => `$${value}`}
-                    stroke={chartTheme.colors.muted}
+                    stroke="hsl(var(--muted-foreground))"
                   />
                   <Tooltip content={<CustomTooltip />} />
                   <Legend />
                   <Bar 
                     dataKey="budget" 
-                    fill={chartTheme.colors.primary}
+                    fill="hsl(var(--primary))"
                     name="Budget"
                     radius={[2, 2, 0, 0]}
                   />
                   <Bar 
                     dataKey="spent" 
-                    fill={chartTheme.colors.error}
+                    fill="hsl(var(--destructive))"
                     name="Spent"
                     radius={[2, 2, 0, 0]}
                   />

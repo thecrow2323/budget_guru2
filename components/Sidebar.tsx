@@ -94,7 +94,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       {/* Fixed Sidebar */}
       <div
         className={cn(
-          "fixed left-0 top-0 h-screen bg-white/95 backdrop-blur-md border-r border-border/50 z-50 transition-all duration-300 ease-in-out shadow-xl overflow-y-auto",
+          "fixed left-0 top-0 h-screen bg-background/95 backdrop-blur-md border-r border-border z-50 transition-all duration-300 ease-in-out shadow-xl overflow-y-auto",
           "md:translate-x-0",
           isCollapsed ? "w-20" : "w-72",
           isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
@@ -102,7 +102,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-6 border-b border-border/50 flex-shrink-0">
+          <div className="p-6 border-b border-border flex-shrink-0">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 rounded-xl shadow-lg">
                 <Wallet className="h-6 w-6 text-white" />
@@ -143,10 +143,10 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                       isActive &&
                         "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25",
                       !isActive &&
-                        "hover:bg-muted/50 hover:scale-[1.02] hover:shadow-sm",
+                        "hover:bg-accent hover:text-accent-foreground hover:scale-[1.02] hover:shadow-sm",
                       item.highlight &&
                         !isActive &&
-                        "border border-blue-200 bg-blue-50/50"
+                        "border border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/50"
                     )}
                     onClick={() => {
                       onTabChange(item.id);
@@ -186,7 +186,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                     {item.highlight && !isActive && !isCollapsed && (
                       <Badge
                         variant="secondary"
-                        className="text-xs bg-blue-100 text-blue-700"
+                        className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
                       >
                         New
                       </Badge>
@@ -214,7 +214,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-center hover:bg-muted/50 transition-colors"
+              className="w-full justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
               onClick={() => setIsCollapsed(!isCollapsed)}
               aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >

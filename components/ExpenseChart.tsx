@@ -3,7 +3,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Transaction } from '@/types/finance';
-import { useTheme } from 'next-themes';
 import { useChartTheme } from '@/lib/theme-config';
 import { getMonthlyExpenses, formatCurrency } from '@/lib/finance-utils';
 import { BarChart3 } from 'lucide-react';
@@ -19,16 +18,9 @@ export function ExpenseChart({ transactions }: ExpenseChartProps) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div 
-          className="border rounded-lg p-3 shadow-md"
-          style={{
-            backgroundColor: chartTheme.tooltip.backgroundColor,
-            borderColor: chartTheme.tooltip.border,
-            color: chartTheme.tooltip.color,
-          }}
-        >
+        <div className="bg-card border border-border rounded-lg p-3 shadow-md text-card-foreground">
           <p className="font-medium">{label}</p>
-          <p style={{ color: chartTheme.colors.error }}>
+          <p className="text-destructive">
             Expenses: {formatCurrency(payload[0].value)}
           </p>
         </div>
@@ -39,7 +31,7 @@ export function ExpenseChart({ transactions }: ExpenseChartProps) {
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <Card className="w-full">
+      <Card className="w-full bg-card border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-center md:text-left">
             <BarChart3 className="h-5 w-5" />
@@ -59,25 +51,25 @@ export function ExpenseChart({ transactions }: ExpenseChartProps) {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyExpenses}>
                   <CartesianGrid 
-                    stroke={chartTheme.grid.stroke}
+                    stroke="hsl(var(--border))"
                     strokeDasharray={chartTheme.grid.strokeDasharray}
                   />
                   <XAxis 
                     dataKey="month" 
                     className="text-sm"
                     tick={{ fontSize: 12 }}
-                    stroke={chartTheme.colors.muted}
+                    stroke="hsl(var(--muted-foreground))"
                   />
                   <YAxis 
                     className="text-sm"
                     tick={{ fontSize: 12 }}
                     tickFormatter={(value) => `$${value}`}
-                    stroke={chartTheme.colors.muted}
+                    stroke="hsl(var(--muted-foreground))"
                   />
                   <Tooltip content={<CustomTooltip />} />
                   <Bar 
                     dataKey="amount" 
-                    fill={chartTheme.colors.primary}
+                    fill="hsl(var(--primary))"
                     radius={[4, 4, 0, 0]}
                   />
                 </BarChart>

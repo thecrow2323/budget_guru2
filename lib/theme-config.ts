@@ -6,43 +6,45 @@ export const useChartTheme = () => {
 
   return {
     colors: {
-      primary: isDark ? '#60A5FA' : '#3B82F6',
-      secondary: isDark ? '#34D399' : '#10B981',
-      accent: isDark ? '#F472B6' : '#EC4899',
-      warning: isDark ? '#FBBF24' : '#F59E0B',
-      error: isDark ? '#F87171' : '#EF4444',
-      success: isDark ? '#4ADE80' : '#22C55E',
-      muted: isDark ? '#6B7280' : '#9CA3AF',
-      background: isDark ? '#1F2937' : '#FFFFFF',
-      foreground: isDark ? '#F9FAFB' : '#111827',
-      border: isDark ? '#374151' : '#E5E7EB',
+      primary: isDark ? 'hsl(217.2 91.2% 59.8%)' : 'hsl(221.2 83.2% 53.3%)',
+      secondary: isDark ? 'hsl(142.1 76.2% 36.3%)' : 'hsl(142.1 70.6% 45.3%)',
+      accent: isDark ? 'hsl(330.4 81.2% 60.4%)' : 'hsl(330.4 81.2% 60.4%)',
+      warning: isDark ? 'hsl(47.9 95.8% 53.1%)' : 'hsl(32.6 94.6% 43.7%)',
+      error: isDark ? 'hsl(0 84.2% 60.2%)' : 'hsl(0 84.2% 60.2%)',
+      success: isDark ? 'hsl(142.1 76.2% 36.3%)' : 'hsl(142.1 70.6% 45.3%)',
+      muted: isDark ? 'hsl(215 27.9% 16.9%)' : 'hsl(210 40% 96%)',
+      background: isDark ? 'hsl(222.2 84% 4.9%)' : 'hsl(0 0% 100%)',
+      foreground: isDark ? 'hsl(210 40% 98%)' : 'hsl(222.2 84% 4.9%)',
+      border: isDark ? 'hsl(217.2 32.6% 17.5%)' : 'hsl(214.3 31.8% 91.4%)',
+      card: isDark ? 'hsl(222.2 84% 4.9%)' : 'hsl(0 0% 100%)',
+      cardForeground: isDark ? 'hsl(210 40% 98%)' : 'hsl(222.2 84% 4.9%)',
     },
     chartColors: isDark 
-      ? ['#60A5FA', '#34D399', '#F472B6', '#FBBF24', '#F87171', '#A78BFA', '#FB7185', '#4ADE80', '#38BDF8', '#FDE047']
-      : ['#3B82F6', '#10B981', '#EC4899', '#F59E0B', '#EF4444', '#8B5CF6', '#E11D48', '#22C55E', '#0EA5E9', '#EAB308'],
+      ? ['hsl(217.2 91.2% 59.8%)', 'hsl(142.1 76.2% 36.3%)', 'hsl(330.4 81.2% 60.4%)', 'hsl(47.9 95.8% 53.1%)', 'hsl(0 84.2% 60.2%)', 'hsl(263.4 70% 50.4%)', 'hsl(346.8 77.2% 49.8%)', 'hsl(142.1 76.2% 36.3%)', 'hsl(199.4 89.1% 48.4%)', 'hsl(47.9 95.8% 53.1%)']
+      : ['hsl(221.2 83.2% 53.3%)', 'hsl(142.1 70.6% 45.3%)', 'hsl(330.4 81.2% 60.4%)', 'hsl(32.6 94.6% 43.7%)', 'hsl(0 84.2% 60.2%)', 'hsl(263.4 70% 50.4%)', 'hsl(346.8 77.2% 49.8%)', 'hsl(142.1 70.6% 45.3%)', 'hsl(199.4 89.1% 48.4%)', 'hsl(32.6 94.6% 43.7%)'],
     grid: {
-      stroke: isDark ? '#374151' : '#E5E7EB',
+      stroke: isDark ? 'hsl(217.2 32.6% 17.5%)' : 'hsl(214.3 31.8% 91.4%)',
       strokeDasharray: '3 3',
     },
     tooltip: {
-      backgroundColor: isDark ? '#1F2937' : '#FFFFFF',
-      border: isDark ? '#374151' : '#E5E7EB',
-      color: isDark ? '#F9FAFB' : '#111827',
+      backgroundColor: isDark ? 'hsl(222.2 84% 4.9%)' : 'hsl(0 0% 100%)',
+      border: isDark ? 'hsl(217.2 32.6% 17.5%)' : 'hsl(214.3 31.8% 91.4%)',
+      color: isDark ? 'hsl(210 40% 98%)' : 'hsl(222.2 84% 4.9%)',
     },
   };
 };
 
 export const getThemeAwareChartConfig = (isDark: boolean) => ({
   colors: {
-    primary: isDark ? '#60A5FA' : '#3B82F6',
-    secondary: isDark ? '#34D399' : '#10B981',
-    accent: isDark ? '#F472B6' : '#EC4899',
-    warning: isDark ? '#FBBF24' : '#F59E0B',
-    error: isDark ? '#F87171' : '#EF4444',
-    success: isDark ? '#4ADE80' : '#22C55E',
-    muted: isDark ? '#6B7280' : '#9CA3AF',
+    primary: isDark ? 'hsl(217.2 91.2% 59.8%)' : 'hsl(221.2 83.2% 53.3%)',
+    secondary: isDark ? 'hsl(142.1 76.2% 36.3%)' : 'hsl(142.1 70.6% 45.3%)',
+    accent: isDark ? 'hsl(330.4 81.2% 60.4%)' : 'hsl(330.4 81.2% 60.4%)',
+    warning: isDark ? 'hsl(47.9 95.8% 53.1%)' : 'hsl(32.6 94.6% 43.7%)',
+    error: isDark ? 'hsl(0 84.2% 60.2%)' : 'hsl(0 84.2% 60.2%)',
+    success: isDark ? 'hsl(142.1 76.2% 36.3%)' : 'hsl(142.1 70.6% 45.3%)',
+    muted: isDark ? 'hsl(215 27.9% 16.9%)' : 'hsl(210 40% 96%)',
   },
   chartColors: isDark 
-    ? ['#60A5FA', '#34D399', '#F472B6', '#FBBF24', '#F87171', '#A78BFA', '#FB7185', '#4ADE80', '#38BDF8', '#FDE047']
-    : ['#3B82F6', '#10B981', '#EC4899', '#F59E0B', '#EF4444', '#8B5CF6', '#E11D48', '#22C55E', '#0EA5E9', '#EAB308'],
+    ? ['hsl(217.2 91.2% 59.8%)', 'hsl(142.1 76.2% 36.3%)', 'hsl(330.4 81.2% 60.4%)', 'hsl(47.9 95.8% 53.1%)', 'hsl(0 84.2% 60.2%)', 'hsl(263.4 70% 50.4%)', 'hsl(346.8 77.2% 49.8%)', 'hsl(142.1 76.2% 36.3%)', 'hsl(199.4 89.1% 48.4%)', 'hsl(47.9 95.8% 53.1%)']
+    : ['hsl(221.2 83.2% 53.3%)', 'hsl(142.1 70.6% 45.3%)', 'hsl(330.4 81.2% 60.4%)', 'hsl(32.6 94.6% 43.7%)', 'hsl(0 84.2% 60.2%)', 'hsl(263.4 70% 50.4%)', 'hsl(346.8 77.2% 49.8%)', 'hsl(142.1 70.6% 45.3%)', 'hsl(199.4 89.1% 48.4%)', 'hsl(32.6 94.6% 43.7%)'],
 });
