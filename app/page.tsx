@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useProfileStore } from '@/store/profile-store';
+import { profileApi, profileTransactionApi, profileBudgetApi } from '@/lib/profile-api';
+import { ViewModeToggle } from '@/components/profile/view-mode-toggle';
 import { TransactionForm } from '@/components/TransactionForm';
 import { TransactionList } from '@/components/TransactionList';
 import { ExpenseChart } from '@/components/ExpenseChart';
@@ -13,10 +16,22 @@ import { Sidebar } from '@/components/Sidebar';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Transaction, Budget } from '@/types/finance';
-import { transactionApi, budgetApi } from '@/lib/api';
+import { ProfileTransaction, ProfileBudget } from '@/types/profile';
 import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function Home() {
+  // Profile store
+  const {
+    currentGroup,
+    currentProfile,
+    viewMode,
+    groups,
+    setGroups,
+    getCurrentGroupId,
+    getCurrentProfileId,
+    isGroupView,
+  } = useProfileStore();
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | undefined>();
@@ -30,26 +45,13 @@ export default function Home() {
       try {
         setLoading(true);
         setError(null);
-        const [transactionsData, budgetsData] = await Promise.all([
-          transactionApi.getAll(),
-          budgetApi.getAll()
-        ]);
         
-        // Convert MongoDB _id to id for compatibility
-        const normalizedTransactions = transactionsData.map(t => ({
-          ...t,
-          id: t._id || t.id
-        }));
+        // Load groups first
+        const groupsData = await profileApi.getGroups();
+        setGroups(groupsData);
         
-        const normalizedBudgets = budgetsData.map(b => ({
-          ...b,
-          id: b._id || b.id
-        }));
-        
-        setTransactions(normalizedTransactions);
-        setBudgets(normalizedBudgets);
       } catch (err) {
-        console.error('Error loading data:', err);
+        console.error('Error loading initial data:', err);
         setError('Failed to load data. Please check your connection and try again.');
       } finally {
         setLoading(false);
@@ -57,25 +59,103 @@ export default function Home() {
     };
 
     loadData();
-  }, []);
+  }, [setGroups]);
+
+  // Load profile-specific data when profile/view mode changes
+  useEffect(() => {
+    const loadProfileData = async () => {
+      const groupId = getCurrentGroupId();
+      const profileId = getCurrentProfileId();
+      
+      if (!groupId) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const [transactionsData, budgetsData] = await Promise.all([
+          profileTransactionApi.getAll(profileId || undefined, groupId, viewMode.type),
+          profileBudgetApi.getAll(profileId || undefined, groupId, viewMode.type)
+        ]);
+        
+        // Convert MongoDB _id to id for compatibility
+        const normalizedTransactions = transactionsData.map((t: ProfileTransaction) => ({
+          ...t,
+          id: t._id || t.id,
+          // Convert ProfileTransaction to Transaction format
+          _id: t._id,
+          amount: t.amount,
+          date: t.date,
+          description: t.description,
+          type: t.type,
+          category: t.category,
+          createdAt: t.createdAt,
+        }));
+        
+        const normalizedBudgets = budgetsData.map((b: ProfileBudget) => ({
+          ...b,
+          id: b._id || b.id,
+          // Convert ProfileBudget to Budget format
+          _id: b._id,
+          category: b.category,
+          amount: b.amount,
+          spent: b.spent,
+          remaining: b.remaining,
+          percentage: b.percentage,
+        }));
+        
+        setTransactions(normalizedTransactions);
+        setBudgets(normalizedBudgets);
+      } catch (err) {
+        console.error('Error loading profile data:', err);
+        setError('Failed to load profile data. Please check your connection and try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfileData();
+  }, [currentGroup, currentProfile, viewMode, getCurrentGroupId, getCurrentProfileId]);
 
   const handleAddTransaction = async (transaction: Transaction) => {
+    const groupId = getCurrentGroupId();
+    const profileId = getCurrentProfileId();
+    
+    if (!groupId || !profileId) {
+      setError('Please select a profile first');
+      return;
+    }
+
     try {
+      const profileTransaction: Omit<ProfileTransaction, '_id' | 'createdAt'> = {
+        profileId,
+        groupId,
+        amount: transaction.amount,
+        date: transaction.date,
+        description: transaction.description,
+        type: transaction.type,
+        category: transaction.category,
+      };
+
       if (editingTransaction) {
-        const updated = await transactionApi.update(editingTransaction._id || editingTransaction.id!, transaction);
-        setTransactions(prev => 
-          prev.map(t => (t._id || t.id) === (editingTransaction._id || editingTransaction.id) ? { ...updated, id: updated._id } : t)
-        );
-        setEditingTransaction(undefined);
-        setActiveTab('overview');
+        // For now, we'll implement update later
+        setError('Transaction editing not yet implemented for profiles');
+        return;
       } else {
-        const created = await transactionApi.create(transaction);
-        setTransactions(prev => [...prev, { ...created, id: created._id }]);
+        const created = await profileTransactionApi.create(profileTransaction);
+        const normalizedTransaction: Transaction = {
+          ...created,
+          id: created._id,
+        };
+        setTransactions(prev => [...prev, normalizedTransaction]);
       }
       
       // Refresh budgets to update spending
-      const updatedBudgets = await budgetApi.getAll();
-      setBudgets(updatedBudgets.map(b => ({ ...b, id: b._id || b.id })));
+      const updatedBudgets = await profileBudgetApi.getAll(profileId, groupId, viewMode.type);
+      setBudgets(updatedBudgets.map((b: ProfileBudget) => ({
+        ...b,
+        id: b._id || b.id,
+      })));
     } catch (err) {
       console.error('Error saving transaction:', err);
       setError('Failed to save transaction. Please try again.');
@@ -83,18 +163,33 @@ export default function Home() {
   };
 
   const handleEditTransaction = (transaction: Transaction) => {
+    // For now, disable editing for profile transactions
+    setError('Transaction editing not yet implemented for profiles');
+    return;
+    
     setEditingTransaction(transaction);
     setActiveTab('add');
   };
 
   const handleDeleteTransaction = async (id: string) => {
+    // For now, disable deleting for profile transactions
+    setError('Transaction deletion not yet implemented for profiles');
+    return;
+    
     try {
-      await transactionApi.delete(id);
+      // await profileTransactionApi.delete(id);
       setTransactions(prev => prev.filter(t => (t._id || t.id) !== id));
       
       // Refresh budgets to update spending
-      const updatedBudgets = await budgetApi.getAll();
-      setBudgets(updatedBudgets.map(b => ({ ...b, id: b._id || b.id })));
+      const groupId = getCurrentGroupId();
+      const profileId = getCurrentProfileId();
+      if (groupId && profileId) {
+        const updatedBudgets = await profileBudgetApi.getAll(profileId, groupId, viewMode.type);
+        setBudgets(updatedBudgets.map((b: ProfileBudget) => ({
+          ...b,
+          id: b._id || b.id,
+        })));
+      }
     } catch (err) {
       console.error('Error deleting transaction:', err);
       setError('Failed to delete transaction. Please try again.');
@@ -107,14 +202,101 @@ export default function Home() {
   };
 
   const handleSaveBudgets = async (newBudgets: Omit<Budget, 'spent' | 'remaining' | 'percentage'>[]) => {
+    const groupId = getCurrentGroupId();
+    const profileId = getCurrentProfileId();
+    
+    if (!groupId || !profileId) {
+      setError('Please select a profile first');
+      return;
+    }
+
     try {
-      const savedBudgets = await budgetApi.saveAll(newBudgets);
-      setBudgets(savedBudgets.map(b => ({ ...b, id: b._id || b.id })));
+      const profileBudgets = newBudgets.map(budget => ({
+        category: budget.category,
+        amount: budget.amount,
+      }));
+      
+      const savedBudgets = await profileBudgetApi.saveAll(profileId, groupId, profileBudgets);
+      setBudgets(savedBudgets.map((b: ProfileBudget) => ({
+        ...b,
+        id: b._id || b.id,
+      })));
     } catch (err) {
       console.error('Error saving budgets:', err);
       setError('Failed to save budgets. Please try again.');
     }
   };
+
+  // Show loading if no groups are loaded yet
+  if (groups.length === 0 && loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex">
+        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <div className="flex-1 md:ml-72 overflow-y-auto h-screen">
+          <div className="container mx-auto px-4 py-8 md:px-8 md:py-12 max-w-7xl">
+            <div className="flex items-center justify-center py-20 min-h-[60vh]">
+              <div className="text-center space-y-4">
+                <Loader2 className="h-12 w-12 animate-spin mx-auto text-blue-600" />
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium">Loading Budget Guru</h3>
+                  <p className="text-muted-foreground">Setting up your financial dashboard...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show setup screen if no groups exist
+  if (groups.length === 0 && !loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex">
+        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <div className="flex-1 md:ml-72 overflow-y-auto h-screen">
+          <div className="container mx-auto px-4 py-8 md:px-8 md:py-12 max-w-7xl">
+            <div className="flex items-center justify-center py-20 min-h-[60vh]">
+              <div className="text-center space-y-6 max-w-md">
+                <h2 className="text-2xl font-bold">Welcome to Budget Guru!</h2>
+                <p className="text-muted-foreground">
+                  Get started by creating your first profile group. You can set up individual profiles 
+                  for family members, roommates, or just yourself.
+                </p>
+                <Button size="lg" onClick={() => {
+                  // For now, create a default group
+                  const createDefaultGroup = async () => {
+                    try {
+                      const defaultGroup = {
+                        name: 'My Finances',
+                        type: 'personal' as const,
+                        profiles: [
+                          {
+                            name: 'Me',
+                            color: '#3B82F6',
+                          }
+                        ],
+                      };
+                      
+                      const created = await profileApi.createGroup(defaultGroup);
+                      setGroups([created]);
+                    } catch (err) {
+                      console.error('Error creating default group:', err);
+                      setError('Failed to create default group. Please try again.');
+                    }
+                  };
+                  
+                  createDefaultGroup();
+                }}>
+                  Create My First Profile
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const retryLoad = () => {
     window.location.reload();
@@ -243,7 +425,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex">
       {/* Fixed Sidebar */}
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       
@@ -256,9 +438,16 @@ export default function Home() {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 bg-clip-text text-transparent mb-4">
                 Personal Finance
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-6">
                 Complete financial management with expense tracking, budgeting, and intelligent insights
               </p>
+              
+              {/* View Mode Toggle */}
+              {currentGroup && (
+                <div className="flex justify-center">
+                  <ViewModeToggle />
+                </div>
+              )}
             </div>
           </div>
 
