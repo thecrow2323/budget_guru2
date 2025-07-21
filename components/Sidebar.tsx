@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ProfileSwitcher } from "@/components/profile/profile-switcher";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
@@ -116,6 +118,13 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                 </div>
               )}
             </div>
+            
+            {/* Profile Switcher */}
+            {!isCollapsed && (
+              <div className="mt-4">
+                <ProfileSwitcher />
+              </div>
+            )}
           </div>
 
           {/* Navigation */}
@@ -197,6 +206,11 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
           {/* Collapse Toggle (Desktop only) */}
           <div className="p-4 hidden md:block flex-shrink-0">
+            {!isCollapsed && (
+              <div className="mb-4 flex justify-center">
+                <ThemeToggle />
+              </div>
+            )}
             <Button
               variant="ghost"
               size="sm"

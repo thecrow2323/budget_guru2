@@ -3,6 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Transaction } from '@/types/finance';
+import { useChartTheme } from '@/lib/theme-config';
 import { getCategoryExpenses, formatCurrency } from '@/lib/finance-utils';
 import { PieChart as PieChartIcon } from 'lucide-react';
 
@@ -11,15 +12,23 @@ interface CategoryChartProps {
 }
 
 export function CategoryChart({ transactions }: CategoryChartProps) {
+  const chartTheme = useChartTheme();
   const categoryExpenses = getCategoryExpenses(transactions);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-background border border-border rounded-lg p-3 shadow-md">
+        <div 
+          className="border rounded-lg p-3 shadow-md"
+          style={{
+            backgroundColor: chartTheme.tooltip.backgroundColor,
+            borderColor: chartTheme.tooltip.border,
+            color: chartTheme.tooltip.color,
+          }}
+        >
           <p className="font-medium">{data.category}</p>
-          <p className="text-primary">
+          <p style={{ color: chartTheme.colors.primary }}>
             Amount: {formatCurrency(data.amount)}
           </p>
         </div>
@@ -37,7 +46,7 @@ export function CategoryChart({ transactions }: CategoryChartProps) {
               className="w-3 h-3 rounded-full" 
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-muted-foreground">{entry.value}</span>
+            <span style={{ color: chartTheme.colors.muted }}>{entry.value}</span>
           </div>
         ))}
       </div>
@@ -74,7 +83,10 @@ export function CategoryChart({ transactions }: CategoryChartProps) {
                     nameKey="category"
                   >
                     {categoryExpenses.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={chartTheme.chartColors[index % chartTheme.chartColors.length]} 
+                      />
                     ))}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
