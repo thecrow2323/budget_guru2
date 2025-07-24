@@ -35,6 +35,7 @@ export const useProfileStore = create<ProfileState>()(
 
       // Actions
       setCurrentGroup: (group) => {
+        // FIXED: Clear any existing data when switching groups
         set({ currentGroup: group });
         
         // Auto-select first profile if switching groups
@@ -52,6 +53,7 @@ export const useProfileStore = create<ProfileState>()(
       },
 
       setCurrentProfile: (profile) => {
+        // FIXED: Update view mode when profile changes
         set({ currentProfile: profile });
         
         const { currentGroup } = get();
@@ -66,7 +68,22 @@ export const useProfileStore = create<ProfileState>()(
         }
       },
 
-      setViewMode: (mode) => set({ viewMode: mode }),
+      setViewMode: (mode) => {
+        // FIXED: Ensure profile is updated when switching view modes
+        const { currentGroup } = get();
+        if (mode.type === 'individual' && mode.profileId && currentGroup) {
+          const profile = currentGroup.profiles.find(p => 
+            (p._id || p.id) === mode.profileId
+          );
+          if (profile) {
+            set({ currentProfile: profile, viewMode: mode });
+          } else {
+            set({ viewMode: mode });
+          }
+        } else {
+          set({ viewMode: mode });
+        }
+      },
 
       setGroups: (groups) => {
         set({ groups });

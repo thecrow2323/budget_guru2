@@ -61,7 +61,7 @@ export default function Home() {
     loadData();
   }, [setGroups]);
 
-  // Load profile-specific data when profile/view mode changes
+  // Load profile-specific data when profile/view mode changes - FIXED: Added proper dependency tracking
   useEffect(() => {
     const loadProfileData = async () => {
       const groupId = getCurrentGroupId();
@@ -115,7 +115,7 @@ export default function Home() {
     };
 
     loadProfileData();
-  }, [currentGroup, currentProfile, viewMode, getCurrentGroupId, getCurrentProfileId]);
+  }, [currentGroup?._id, currentProfile?._id, viewMode.type, viewMode.profileId, viewMode.groupId, getCurrentGroupId, getCurrentProfileId]);
 
   const handleAddTransaction = async (transaction: Transaction) => {
     const groupId = getCurrentGroupId();
@@ -138,9 +138,18 @@ export default function Home() {
       };
 
       if (editingTransaction) {
-        // For now, we'll implement update later
-        setError('Transaction editing not yet implemented for profiles');
-        return;
+        // FIXED: Implement transaction editing
+        const updated = await profileTransactionApi.update(editingTransaction._id || editingTransaction.id!, profileTransaction);
+        const normalizedTransaction: Transaction = {
+          ...updated,
+          id: updated._id,
+        };
+        setTransactions(prev => prev.map(t => 
+          (t._id || t.id) === (editingTransaction._id || editingTransaction.id) 
+            ? normalizedTransaction 
+            : t
+        ));
+        setEditingTransaction(undefined);
       } else {
         const created = await profileTransactionApi.create(profileTransaction);
         const normalizedTransaction: Transaction = {
@@ -151,7 +160,11 @@ export default function Home() {
       }
       
       // Refresh budgets to update spending
-      const updatedBudgets = await profileBudgetApi.getAll(profileId, groupId, viewMode.type);
+      const updatedBudgets = await profileBudgetApi.getAll(
+        viewMode.type === 'individual' ? profileId : undefined, 
+        groupId, 
+        viewMode.type
+      );
       setBudgets(updatedBudgets.map((b: ProfileBudget) => ({
         ...b,
         id: b._id || b.id,
@@ -163,28 +176,25 @@ export default function Home() {
   };
 
   const handleEditTransaction = (transaction: Transaction) => {
-    // For now, disable editing for profile transactions
-    setError('Transaction editing not yet implemented for profiles');
-    return;
-    
+    // FIXED: Enable transaction editing
     setEditingTransaction(transaction);
     setActiveTab('add');
   };
 
   const handleDeleteTransaction = async (id: string) => {
-    // For now, disable deleting for profile transactions
-    setError('Transaction deletion not yet implemented for profiles');
-    return;
-    
     try {
-      // await profileTransactionApi.delete(id);
+      await profileTransactionApi.delete(id);
       setTransactions(prev => prev.filter(t => (t._id || t.id) !== id));
       
       // Refresh budgets to update spending
       const groupId = getCurrentGroupId();
       const profileId = getCurrentProfileId();
       if (groupId && profileId) {
-        const updatedBudgets = await profileBudgetApi.getAll(profileId, groupId, viewMode.type);
+        const updatedBudgets = await profileBudgetApi.getAll(
+          viewMode.type === 'individual' ? profileId : undefined, 
+          groupId, 
+          viewMode.type
+        );
         setBudgets(updatedBudgets.map((b: ProfileBudget) => ({
           ...b,
           id: b._id || b.id,

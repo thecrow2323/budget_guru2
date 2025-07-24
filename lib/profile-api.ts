@@ -131,6 +131,52 @@ export const profileTransactionApi = {
       );
     }
   },
+
+  async update(id: string, transaction: Omit<ProfileTransaction, '_id' | 'createdAt'>): Promise<ProfileTransaction> {
+    try {
+      if (!id) {
+        throw new Error('Transaction ID is required');
+      }
+      if (!transaction.amount || transaction.amount <= 0) {
+        throw new Error('Invalid transaction amount');
+      }
+      if (!transaction.description?.trim()) {
+        throw new Error('Transaction description is required');
+      }
+      if (!transaction.category?.trim()) {
+        throw new Error('Transaction category is required');
+      }
+      if (!transaction.profileId) {
+        throw new Error('Profile ID is required');
+      }
+      if (!transaction.groupId) {
+        throw new Error('Group ID is required');
+      }
+
+      return await apiRequest<ProfileTransaction>(`/api/profile-transactions/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(transaction),
+      });
+    } catch (error) {
+      console.error('Failed to update profile transaction:', error);
+      throw new Error('Failed to update transaction. Please try again.');
+    }
+  },
+
+  async delete(id: string): Promise<void> {
+    try {
+      if (!id) {
+        throw new Error('Transaction ID is required');
+      }
+
+      await apiRequest<void>(`/api/profile-transactions/${id}`, {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      console.error('Failed to delete profile transaction:', error);
+      throw new Error('Failed to delete transaction. Please try again.');
+    }
+  },
 };
 
 // Profile Budget API functions

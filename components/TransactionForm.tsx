@@ -26,6 +26,25 @@ export function TransactionForm({ onSubmit, editingTransaction, onCancel }: Tran
   const [category, setCategory] = useState(editingTransaction?.category || '');
   const [errors, setErrors] = useState<{ amount?: string; date?: string; description?: string; category?: string }>({});
 
+  // FIXED: Update form when editingTransaction changes
+  useEffect(() => {
+    if (editingTransaction) {
+      setAmount(editingTransaction.amount.toString());
+      setDate(editingTransaction.date);
+      setDescription(editingTransaction.description);
+      setType(editingTransaction.type);
+      setCategory(editingTransaction.category);
+    } else {
+      // Reset form for new transaction
+      setAmount('');
+      setDate(new Date().toISOString().split('T')[0]);
+      setDescription('');
+      setType('expense');
+      setCategory('');
+    }
+    setErrors({});
+  }, [editingTransaction]);
+
   const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
   const handleSubmit = (e: React.FormEvent) => {

@@ -13,11 +13,13 @@ interface BudgetChartProps {
 
 export function BudgetChart({ budgets }: BudgetChartProps) {
   const chartTheme = useChartTheme();
+  
+  // FIXED: Ensure we have proper budget vs actual data
   const chartData = budgets.map(budget => ({
     category: budget.category.length > 12 ? budget.category.substring(0, 12) + '...' : budget.category,
     fullCategory: budget.category,
     budget: budget.amount,
-    spent: budget.spent,
+    spent: budget.spent || 0, // Ensure spent is always a number
     remaining: Math.max(0, budget.remaining)
   }));
 
@@ -31,6 +33,9 @@ export function BudgetChart({ budgets }: BudgetChartProps) {
             <p className="text-primary">Budget: {formatCurrency(data.budget)}</p>
             <p className="text-destructive">Spent: {formatCurrency(data.spent)}</p>
             <p className="text-green-600">Remaining: {formatCurrency(data.remaining)}</p>
+            <p className="text-muted-foreground">
+              Progress: {data.budget > 0 ? Math.round((data.spent / data.budget) * 100) : 0}%
+            </p>
           </div>
         </div>
       );

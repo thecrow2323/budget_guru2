@@ -206,11 +206,6 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
           {/* Collapse Toggle (Desktop only) */}
           <div className="p-4 hidden md:block flex-shrink-0">
-            {!isCollapsed && (
-              <div className="mb-4 flex justify-center">
-                <ThemeToggle />
-              </div>
-            )}
             <Button
               variant="ghost"
               size="sm"

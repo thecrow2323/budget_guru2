@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -26,6 +27,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          {/* FIXED: Global theme toggle positioned at top-right */}
+          <div className="fixed top-4 right-4 z-50">
+            <ThemeToggle />
+          </div>
           {children}
           <Toaster />
         </ThemeProvider>
